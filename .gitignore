@@ -1,0 +1,29 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.so
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Environment files
+.env
+*.env
+
+# Logs
+*.log
+
+# Data files
+*.csv
+*.tsv
+*.dat
+
+# System files
+.DS_Store
+Thumbs.db
+
+# VS Code settings
+.vscode/
+
+# Node
+node_modules/

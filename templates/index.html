@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Route Severity Map (Leaflet)</title>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 80vh;
+      width: 100%;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+    }
+    input {
+      margin: 5px;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Route Safety Visualizer (Open Source)</h2>
+  <input id="startLat" placeholder="Start Latitude" />
+  <input id="startLng" placeholder="Start Longitude" />
+  <input id="endLat" placeholder="Destination Latitude" />
+  <input id="endLng" placeholder="Destination Longitude" />
+  <button onclick="showRoute()">Show Route</button>
+
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
