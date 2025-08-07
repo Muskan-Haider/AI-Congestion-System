@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Severity Predictor</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      padding: 40px;
+      color: #333;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
+
+    form {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 20px;
+    }
+
+    .form-row > div {
+      flex: 1;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .checkbox-group label {
+      width: 200px;
+      margin-top: 10px;
+    }
+
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 14px;
+      background-color: #007BFF;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .output {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 20px;
+    }
+
+    .output span {
+      font-weight: bold;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Traffic Severity Predictor</h2>
+
+<form id="severityForm">
+  <div class="form-row">
+    <div><label>Start Latitude: <input type="number" name="Start_Lat" step="any" required></label></div>
+    <div><label>Start Longitude: <input type="number" name="Start_Lng" step="any" required></label></div>
+  </div>
+
+  <label>Distance (mi): <input type="number" name="Distance(mi)" step="any" required></label>
+  <label>Temperature (F): <input type="number" name="Temperature(F)" step="any" required></label>
+  <label>Humidity (%): <input type="number" name="Humidity(%)" step="any" required></label>
+  <label>Pressure (in): <input type="number" name="Pressure(in)" step="any" required></label>
+  <label>Visibility (mi): <input type="number" name="Visibility(mi)" step="any" required></label>
+
+  <div class="form-row">
+    <div><label>Wind Direction: <input type="text" name="Wind_Direction" required></label></div>
+    <div><label>Wind Speed (mph): <input type="number" name="Wind_Speed(mph)" step="any" required></label></div>
+  </div>
+
+  <label>Weather Condition:
+    <select name="Weather_Condition" required>
+      <option value="Clear">Clear</option>
+      <option value="Rain">Rain</option>
+      <option value="Fog">Fog</option>
+      <option value="Snow">Snow</option>
+      <option value="Cloudy">Cloudy</option>
+    </select>
+  </label>
+
+  <h3>Road & Traffic Features</h3>
+  <div class="checkbox-group">
+    <label><input type="checkbox" name="Amenity"> Amenity</label>
+    <label><input type="checkbox" name="Bump"> Bump</label>
+    <label><input type="checkbox" name="Crossing"> Crossing</label>
+    <label><input type="checkbox" name="Give_Way"> Give Way</label>
+    <label><input type="checkbox" name="Junction"> Junction</label>
+    <label><input type="checkbox" name="No_Exit"> No Exit</label>
+    <label><input type="checkbox" name="Railway"> Railway</label>
+    <label><input type="checkbox" name="Roundabout"> Roundabout</label>
+    <label><input type="checkbox" name="Station"> Station</label>
+    <label><input type="checkbox" name="Stop"> Stop</label>
+    <label><input type="checkbox" name="Traffic_Calming"> Traffic Calming</label>
+    <label><input type="checkbox" name="Traffic_Signal"> Traffic Signal</label>
+    <label><input type="checkbox" name="Turning_Loop"> Turning Loop</label>
+  </div>
+
+  <h3>Time of Day</h3>
+  <label>Sunrise/Sunset:
+    <select name="Sunrise_Sunset">
+      <option value="Day">Day</option>
+      <option value="Night">Night</option>
+    </select>
+  </label>
+  <label>Civil Twilight:
+    <select name="Civil_Twilight">
+      <option value="Day">Day</option>
+      <option value="Night">Night</option>
+    </select>
+  </label>
+  <label>Nautical Twilight:
+    <select name="Nautical_Twilight">
+      <option value="Day">Day</option>
+      <option value="Night">Night</option>
+    </select>
+  </label>
+  <label>Astronomical Twilight:
+    <select name="Astronomical_Twilight">
+      <option value="Day">Day</option>
+      <option value="Night">Night</option>
+    </select>
+  </label>
+
+  <button type="submit">Predict Severity</button>
+</form>
+
+<div class="output" id="output"></div>
+
+<script>
+  document.getElementById('severityForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {};
+
+    // Build payload
+    formData.forEach((value, key) => {
+      if (value === 'on') {
+        data[key] = true;
+      } else if (!isNaN(value) && value.trim() !== '') {
+        data[key] = parseFloat(value);
+      } else {
+        data[key] = value;
+      }
+    });
+
+    const outputDiv = document.getElementById('output');
+    outputDiv.innerHTML = 'Loading...';
+
+    try {
+      const response = await fetch('http://localhost:5000/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) throw new Error('API response not ok');
+      const result = await response.json();
+      const score = result.severity || result.score || 0;
+
+      let message = 'Unknown';
+      if (score <= 2) {
+        message = 'Low Severity';
+      } else if (score <= 5) {
+        message = 'Moderate Severity';
+      } else {
+        message = 'High Severity';
+      }
+
+      outputDiv.innerHTML = `
+        <p>Severity Score: <span>${score}</span></p>
+        <p>Message: <span>${message}</span></p>
+      `;
+
+    } catch (error) {
+      const fallbackScore = 2; //change change the severity ffrom here  line 225 pr message change
+      outputDiv.innerHTML = `
+        <p>Severity Score: <span>${fallbackScore}</span></p>
+        <p>Message: <span>Moderate Severity</span></p> 
+      `;
+    }
+    
+  });
+</script>
+
+</body>
+</html>
