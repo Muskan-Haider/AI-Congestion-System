@@ -1,4 +1,7 @@
-const weatherApiKey = 'REMOVED';
+require('dotenv').config();
+const apiKey = process.env.OPENWEATHERMAP_KEY;
+API_KEY = os.getenv("OPENWEATHERMAP_KEY")
+
 const weatherUrl = 'https://api.openweathermap.org/data/2.5/weather';
 
 let map = L.map('map').setView([40.6892, -74.0445], 7); // Statue of Liberty, New York
